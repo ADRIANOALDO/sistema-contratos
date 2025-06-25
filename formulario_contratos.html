@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Contratos de Aluguel de Motos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .form-container {
+            padding: 40px;
+        }
+
+        .form-section {
+            margin-bottom: 40px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+        }
+
+        .form-section h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-section h2::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: #667eea;
+            border-radius: 50%;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .required {
+            color: #e74c3c;
+        }
+
+        .submit-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0 -40px -40px -40px;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .submit-btn {
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 18px 40px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .submit-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            display: none;
+            margin-top: 20px;
+            color: white;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .success-message {
+            display: none;
+            background: #d4edda;
+            color: #155724;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error-message {
+            display: none;
+            background: #f8d7da;
+            color: #721c24;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #f5c6cb;
+        }
+
+        .contract-link {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 10px 20px;
+            background: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: 600;
+        }
+
+        .contract-link:hover {
+            background: #218838;
+        }
+
+        .setup-instructions {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .setup-instructions h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .setup-instructions p {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .setup-instructions code {
+            background: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            .header {
+                padding: 30px 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .form-container {
+                padding: 20px;
+            }
+            
+            .form-section {
+                padding: 20px;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Sistema de Contratos</h1>
+            <p>Aluguel de Motos - Geração Automática</p>
+        </div>
+
+        <div class="form-container">
+            <div class="setup-instructions">
+                <h3>🔧 Instruções de Configuração</h3>
+                <p><strong>Para usar este sistema, você precisa configurar:</strong></p>
+                <p>1. Criar uma planilha no Google Sheets</p>
+                <p>2. Criar um projeto no Google Apps Script</p>
+                <p>3. Substituir <code>YOUR_SCRIPT_ID</code> no JavaScript abaixo pela URL do seu script</p>
+                <p>4. Configurar as permissões necessárias no Google Apps Script</p>
+                <p><strong>Todos os arquivos necessários foram gerados e estão prontos para uso!</strong></p>
+            </div>
+
+            <div class="success-message" id="successMessage">
+                <strong>Sucesso!</strong> Contrato gerado com sucesso!
+                <div id="contractLinkContainer"></div>
+            </div>
+            
+            <div class="error-message" id="errorMessage">
+                <strong>Erro!</strong> <span id="errorText">Ocorreu um problema ao processar o contrato. Tente novamente.</span>
+            </div>
+
+            <form id="contratoForm">
+                <!-- Dados do Locador -->
+                <div class="form-section">
+                    <h2>Dados do Locador</h2>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="locadorNome">Nome/Razão Social <span class="required">*</span></label>
+                            <input type="text" id="locadorNome" name="locadorNome" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="locadorCpfCnpj">CPF/CNPJ <span class="required">*</span></label>
+                            <input type="text" id="locadorCpfCnpj" name="locadorCpfCnpj" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="locadorEndereco">Endereço Completo <span class="required">*</span></label>
+                            <input type="text" id="locadorEndereco" name="locadorEndereco" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="locadorTelefone">Telefone</label>
+                            <input type="tel" id="locadorTelefone" name="locadorTelefone">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="locadorEmail">E-mail</label>
+                            <input type="email" id="locadorEmail" name="locadorEmail">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dados do Locatário -->
+                <div class="form-section">
+                    <h2>Dados do Locatário</h2>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="locatarioNome">Nome Completo <span class="required">*</span></label>
+                            <input type="text" id="locatarioNome" name="locatarioNome" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="locatarioCpf">CPF <span class="required">*</span></label>
+                            <input type="text" id="locatarioCpf" name="locatarioCpf" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="locatarioRg">RG <span class="required">*</span></label>
+                            <input type="text" id="locatarioRg" name="locatarioRg" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="locatarioCnh">CNH <span class="required">*</span></label>
+                            <input type="text" id="locatarioCnh" name="locatarioCnh" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="locatarioEndereco">Endereço Completo <span class="required">*</span></label>
+                            <input type="text" id="locatarioEndereco" name="locatarioEndereco" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="locatarioTelefone">Telefone <span class="required">*</span></label>
+                            <input type="tel" id="locatarioTelefone" name="locatarioTelefone" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="locatarioEmail">E-mail <span class="required">*</span></label>
+                            <input type="email" id="locatarioEmail" name="locatarioEmail" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dados da Moto -->
+                <div class="form-section">
+                    <h2>Dados da Moto</h2>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="motoMarca">Marca <span class="required">*</span></label>
+                            <input type="text" id="motoMarca" name="motoMarca" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="motoModelo">Modelo <span class="required">*</span></label>
+                            <input type="text" id="motoModelo" name="motoModelo" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="motoAno">Ano <span class="required">*</span></label>
+                            <input type="number" id="motoAno" name="motoAno" required min="1990" max="2030">
+                        </div>
+                        <div class="form-group">
+                            <label for="motoPlaca">Placa <span class="required">*</span></label>
+                            <input type="text" id="motoPlaca" name="motoPlaca" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="motoCor">Cor <span class="required">*</span></label>
+                            <input type="text" id="motoCor" name="motoCor" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="motoRenavam">RENAVAM</label>
+                            <input type="text" id="motoRenavam" name="motoRenavam">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Condições do Aluguel -->
+                <div class="form-section">
+                    <h2>Condições do Aluguel</h2>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="dataInicio">Data de Início <span class="required">*</span></label>
+                            <input type="date" id="dataInicio" name="dataInicio" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="dataTermino">Data de Término <span class="required">*</span></label>
+                            <input type="date" id="dataTermino" name="dataTermino" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="valorAluguel">Valor do Aluguel (R$) <span class="required">*</span></label>
+                            <input type="number" id="valorAluguel" name="valorAluguel" required min="0" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label for="formaPagamento">Forma de Pagamento <span class="required">*</span></label>
+                            <select id="formaPagamento" name="formaPagamento" required>
+                                <option value="">Selecione...</option>
+                                <option value="dinheiro">Dinheiro</option>
+                                <option value="pix">PIX</option>
+                                <option value="cartao">Cartão</option>
+                                <option value="transferencia">Transferência Bancária</option>
+                                <option value="boleto">Boleto</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="caucao">Valor da Caução (R$)</label>
+                            <input type="number" id="caucao" name="caucao" min="0" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label for="quilometragem">Quilometragem Atual</label>
+                            <input type="number" id="quilometragem" name="quilometragem" min="0">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Informações Adicionais -->
+                <div class="form-section">
+                    <h2>Informações Adicionais</h2>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="finalidadeUso">Finalidade do Uso</label>
+                            <select id="finalidadeUso" name="finalidadeUso">
+                                <option value="">Selecione...</option>
+                                <option value="pessoal">Uso Pessoal</option>
+                                <option value="trabalho">Trabalho</option>
+                                <option value="delivery">Delivery</option>
+                                <option value="turismo">Turismo</option>
+                                <option value="outros">Outros</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="avisoPrevio">Aviso Prévio (dias)</label>
+                            <input type="number" id="avisoPrevio" name="avisoPrevio" min="1" value="3">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="observacoes">Observações Especiais</label>
+                            <textarea id="observacoes" name="observacoes" placeholder="Digite aqui qualquer informação adicional relevante para o contrato..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="submit-section">
+                    <button type="submit" class="submit-btn" id="submitBtn">
+                        Gerar Contrato
+                    </button>
+                    <div class="loading" id="loading">
+                        <div class="loading-spinner"></div>
+                        Processando contrato...
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Configuração - SUBSTITUA PELA URL DO SEU GOOGLE APPS SCRIPT
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxiiW4UBP5SlEs5O6ZnxitpFrBz42wLDAetRx4crwbGD1E6hWPPm29dwC-BekW0LCtY/exec';
+
+        // Formatação de campos
+        document.getElementById('locadorCpfCnpj').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length <= 11) {
+                // CPF
+                value = value.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+            } else {
+                // CNPJ
+                value = value.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
+            }
+            e.target.value = value;
+        });
+
+        document.getElementById('locatarioCpf').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            value = value.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+            e.target.value = value;
+        });
+
+        document.getElementById('locatarioTelefone').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            value = value.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+            e.target.value = value;
+        });
+
+        document.getElementById('locadorTelefone').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            value = value.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+            e.target.value = value;
+        });
+
+        document.getElementById('motoPlaca').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+            if (value.length <= 7) {
+                value = value.replace(/([A-Z]{3})(\d{4})/, '$1-$2');
+            }
+            e.target.value = value;
+        });
+
+        // Validação de datas
+        document.getElementById('dataInicio').addEventListener('change', function() {
+            const dataInicio = new Date(this.value);
+            const dataTermino = document.getElementById('dataTermino');
+            
+            // Define data mínima para término como um dia após o início
+            const minDataTermino = new Date(dataInicio);
+            minDataTermino.setDate(minDataTermino.getDate() + 1);
+            dataTermino.min = minDataTermino.toISOString().split('T')[0];
+            
+            // Se a data de término for anterior à nova data de início, limpa o campo
+            if (dataTermino.value && new Date(dataTermino.value) <= dataInicio) {
+                dataTermino.value = '';
+            }
+        });
+
+        // Submissão do formulário
+        document.getElementById('contratoForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const loading = document.getElementById('loading');
+            const successMessage = document.getElementById('successMessage');
+            const errorMessage = document.getElementById('errorMessage');
+            const contractLinkContainer = document.getElementById('contractLinkContainer');
+            
+            // Esconde mensagens anteriores
+            successMessage.style.display = 'none';
+            errorMessage.style.display = 'none';
+            contractLinkContainer.innerHTML = '';
+            
+            // Mostra loading
+            submitBtn.style.display = 'none';
+            loading.style.display = 'block';
+            
+            // Coleta dados do formulário
+            const formData = new FormData(this);
+            const data = {};
+            for (let [key, value] of formData.entries()) {
+                data[key] = value;
+            }
+            
+            // Adiciona timestamp
+            data.timestamp = new Date().toISOString();
+            
+            // Envia dados para o Google Apps Script
+            fetch(SCRIPT_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+                mode: 'cors'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erro na resposta do servidor');
+                }
+                return response.json();
+            })
+            .then(result => {
+                loading.style.display = 'none';
+                
+                if (result.success) {
+                    successMessage.style.display = 'block';
+                    
+                    // Adiciona link para o contrato se disponível
+                    if (result.contratoUrl) {
+                        contractLinkContainer.innerHTML = `
+                            <a href="${result.contratoUrl}" target="_blank" class="contract-link">
+                                📄 Visualizar Contrato PDF
+                            </a>
+                        `;
+                    }
+                    
+                    // Limpa o formulário
+                    this.reset();
+                    
+                    // Scroll para o topo para mostrar a mensagem
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else {
+                    errorMessage.style.display = 'block';
+                    document.getElementById('errorText').textContent = result.message || 'Erro desconhecido';
+                    submitBtn.style.display = 'inline-block';
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                loading.style.display = 'none';
+                errorMessage.style.display = 'block';
+                document.getElementById('errorText').textContent = 'Erro de conexão: ' + error.message;
+                submitBtn.style.display = 'inline-block';
+            });
+        });
+
+        // Define data mínima como hoje
+        const hoje = new Date().toISOString().split('T')[0];
+        document.getElementById('dataInicio').min = hoje;
+
+        // Função para testar a conexão com o script (opcional)
+        function testarConexao() {
+            console.log('Testando conexão com:', SCRIPT_URL);
+            
+            if (SCRIPT_URL.includes('YOUR_SCRIPT_ID')) {
+                console.warn('⚠️ ATENÇÃO: Você precisa substituir YOUR_SCRIPT_ID pela URL real do seu Google Apps Script!');
+                alert('Configure primeiro o Google Apps Script!\n\nSubstitua YOUR_SCRIPT_ID no código pela URL real do seu script.');
+            }
+        }
+
+        // Testa a conexão quando a página carrega
+        window.addEventListener('load', testarConexao);
+    </script>
+</body>
+</html>
+
